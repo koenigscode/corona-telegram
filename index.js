@@ -8,11 +8,7 @@ const rule = new schedule.RecurrenceRule()
 rule.minute = [0, 15, 30, 45]
 rule.second = 55
 
-bot.on("message", ctx => {
-  console.log(ctx.chat.id)
-})
-
-schedule.scheduleJob(rule, () => {
+const sendUpdate = () => {
   axios
     .get(process.env.DATA_URL)
     .then(res => {
@@ -22,13 +18,26 @@ schedule.scheduleJob(rule, () => {
         `Hospitalisiert: ${hospitalisiert}\n` +
         `Intensivstation: ${Intensivstation}\n\n` +
         `_Stand: ${LetzteAktualisierung}_\n`
-      bot.telegram.sendMessage(process.env.CHAT_ID, answer, {
-        parse_mode: "Markdown"
-      })
+      bot.telegram
+        .sendMessage(process.env.CHAT_ID, answer, {
+          parse_mode: "Markdown"
+        })
+        .then(() => {
+          console.log(`update sent: ${LetzteAktualisierung}`)
+        })
     })
     .catch(err => {
       console.log(err)
     })
+}
+
+bot.on("message", ctx => {
+  if (ctx.update.message.chat.username === process.env.ADMIN_USERNAME)
+    sendUpdate()
 })
 
-bot.launch()
+schedule.scheduleJob(rule, sendUpdate)
+
+bot.launch().then(() => {
+  console.log("bot launched")
+})
