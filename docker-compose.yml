@@ -3,5 +3,5 @@ services:
   corona-telegram:
     build: .
     command: npm run start
-    env_file: .env
+    env_file: env_file
     restart: always
