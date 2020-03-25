@@ -1,2 +1,4 @@
 env_file
 node_modules
+*.sqlite
+*.sqlite-journal
